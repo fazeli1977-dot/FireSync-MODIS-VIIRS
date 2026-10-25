@@ -1,13 +1,6 @@
-from pathlib import Path
-import sys
-import os
-
-sys.path.insert(0, os.path.dirname(__file__))
-
 import streamlit as st
-import pandas as pd
 import plotly.express as px
-from data.sample_data import get_harmonized_sample
+from src.sample_data import get_sample_detections
 
 # -- Page config --------------------------------------------------------------
 st.set_page_config(
@@ -50,7 +43,7 @@ h1, h2, h3 { color: var(--accent); font-weight: 700; letter-spacing: -0.02em; }
 # -- Load data -----------------------------------------------------------------
 @st.cache_data
 def load_data():
-    return get_harmonized_sample(300)
+    return get_sample_detections(300)
 
 df = load_data()
 
@@ -99,7 +92,8 @@ filtered = df[mask].copy()
 
 # -- Header --------------------------------------------------------------------
 st.title("FireSync — MODIS & VIIRS Hot-Spot Harmonization")
-st.caption("NASA Space Apps Challenge 2026 · Team ClimateLens Engine · Sample demo data")
+st.caption("FireSync portfolio prototype · Synthetic demonstration data")
+st.info("Synthetic sample detections only. This dashboard does not download live FIRMS data or issue fire-spread alerts.")
 st.markdown("---")
 
 # -- KPI row ------------------------------------------------------------------
@@ -113,6 +107,10 @@ k4.metric("Mean FRP (MW)", f"{mean_frp:.1f}")
 st.markdown("---")
 
 # -- Map ----------------------------------------------------------------------
+if filtered.empty:
+    st.info("No sample detections match these filters. Adjust the instrument, date or FRP range.")
+    st.stop()
+
 st.subheader("Geospatial Distribution")
 fig_map = px.scatter_map(
     filtered,
@@ -123,7 +121,7 @@ fig_map = px.scatter_map(
     size_max=18,
     color_discrete_map={"MODIS": "#f97316", "VIIRS": "#38bdf8"},
     hover_data={"frp": ":.1f", "brightness": ":.1f", "confidence": True, "acq_date": True} if len(filtered) > 0 else None,
-    map_style="carto-darkmatter",
+    map_style="open-street-map",
     zoom=3,
     center={"lat": 40.5, "lon": -114.5},
     height=480,
@@ -193,7 +191,6 @@ fig_sc = px.scatter(
     color="instrument",
     color_discrete_map={"MODIS": "#f97316", "VIIRS": "#38bdf8"},
     opacity=0.7,
-    trendline="ols" if len(filtered) > 1 else None,
     labels={"confidence": "Confidence Score", "frp": "FRP (MW)"},
     height=360,
 )
@@ -208,7 +205,7 @@ fig_sc.update_layout(
 st.plotly_chart(fig_sc, width='stretch')
 
 # -- Raw data table -----------------------------------------------------------
-with st.expander("View raw harmonized data"):
+with st.expander("View synthetic sample detections"):
     st.dataframe(
         filtered.reset_index(drop=True),
         width='stretch',

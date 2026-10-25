@@ -25,8 +25,8 @@ def main() -> None:
 
     logger.info("=== FireSync-MODIS-VIIRS starting ===")
 
-    modis_path = download_firms("MODIS_NRT", api_key, **bbox, day_range=7)
-    viirs_path = download_firms("VIIRS_SNPP_NRT", api_key, **bbox, day_range=7)
+    modis_path = download_firms("MODIS_NRT", api_key, **bbox, day_range=5)
+    viirs_path = download_firms("VIIRS_SNPP_NRT", api_key, **bbox, day_range=5)
 
     modis_gdf = load_firms_csv(modis_path)
     viirs_gdf = load_firms_csv(viirs_path)

@@ -1,66 +1,37 @@
-# 🛰️ FireSync: MODIS & VIIRS Hot-Spot Harmonization
-### NASA Space Apps Challenge 2026 — Pitch Deck
-**Team Lead:** Alireza Sani ([@fazeli1977-dot](https://github.com/fazeli1977-dot))  
-**Repository:** [FireSync-MODIS-VIIRS](https://github.com/fazeli1977-dot/FireSync-MODIS-VIIRS)  
-**License:** MIT Open Source  
+# FireSync - Portfolio Presentation
 
----
+## 1. Purpose
 
-## Slide 1: Executive Summary & Vision
-- **Project:** FireSync — Cross-Sensor Wildfire Intelligence Engine.
-- **Goal:** Harmonize multi-platform Earth Observation streams (Aqua/Terra MODIS & Suomi-NPP/NOAA-20 VIIRS).
-- **Core Outcome:** Real-time deduplication, spatial re-centering, and calibrated Fire Radiative Power (FRP) estimation.
+A Python prototype for exploring active-fire and thermal-anomaly point detections from MODIS and VIIRS. This presentation makes no claim about competition participation or submission history.
 
----
+## 2. The problem
 
-## Slide 2: The Earth Observation Problem
-- **Spatial Resolution Mismatch:** MODIS (1 km) vs. VIIRS (375 m) creates divergent fire front estimations.
-- **Overpass Offset:** Orbit timing gaps produce asynchronous wildfire observations.
-- **FRP Discrepancies:** Raw thermal outputs vary significantly under differing scan angles and cloud masks.
-- **Operational Hazard:** Crisis responders receive duplicated alerts and fragmented operational pictures.
+Sensors observe at different times and nominal spatial resolutions. A configurable point-matching experiment can help inspect possible cross-sensor correspondences. It does not identify a fire perimeter or prove which detections describe the same fire.
 
----
+## 3. Implemented processing
 
-## Slide 3: Harmonization & Scientific Methodology
-- **Spatio-Temporal Coincidence Window:**
-  - Spatial threshold: $d \le 500\,\text{m}$
-  - Temporal threshold: $\Delta t \le 30\,\text{minutes}$
-- **Confidence Normalization:**
-  - VIIRS levels (`low`, `nominal`, `high`) $\rightarrow$ $[0.3, 0.7, 1.0]$
-  - MODIS percentages $\rightarrow [0.0 - 1.0]$
-- **Weighted FRP Fusion Formula:**
-  $$\text{FRP}_{\text{fused}} = \frac{w_m \cdot \text{FRP}_m + w_v \cdot \text{FRP}_v}{w_m + w_v}$$
-- **Projection:** Dynamic planar UTM conversion using GeoPandas / EPSG:3857 for metric precision.
+FIRMS CSV download code and UTC timestamp parsing feed a geodesic matching routine. Defaults are 500 m and 30 minutes. Eligible pairs are sorted by distance and greedily selected one-to-one; unmatched observations are retained. Matched locations/times use MODIS. Experimental fixed MODIS:VIIRS weights of 1:7 combine FRP, without confidence weighting or validated calibration.
 
----
+## 4. Two separate demonstrations
 
-## Slide 4: System Architecture & Testing Rigor
-- **NASA FIRMS Ingestion:** Robust API connector supporting Near Real-Time (NRT) satellite feeds.
-- **Processing Core:** `src/harmonize.py` handles spatial join, deduplication, and confidence weighting.
-- **Strict Quality Control:** 100% pytest suite pass rate (`4/4 passed`) across spatial, temporal, and FRP fusion tests.
-- **Environment:** Python 3.12, GeoPandas, NumPy, Streamlit, Folium.
+The Streamlit dashboard generates synthetic detections locally for maps, FRP/date/instrument filters and charts. It does not display live NASA observations or matching results. The command-line pipeline can request MODIS_NRT and VIIRS_SNPP_NRT CSVs with a valid key and save a Folium map. A successful live run has not been recorded in this review.
 
----
+## 5. Evidence and reproducibility
 
-## Slide 5: Interactive Dashboard & Field Usability
-- **Real-Time Visuals:** Folium-powered interactive map layers distinguishing raw vs. harmonized hot-spots.
-- **Dynamic Threshold Controls:** Interactive sliders for spatial tolerance ($m$) and FRP cutoffs.
-- **Decision Metrics:** Live metrics displaying total detections, deduplication rate, and aggregate thermal energy (MW).
-- **Interoperability:** Instant export to GeoJSON and CSV for GIS emergency systems.
+Source, install/run instructions and tests accompany the project. Tests cover functional edge cases and mocked downloads; actual results are recorded in validation.md. A localhost app is a local demonstration, not a public hosted service. No automatic CI success, operational deployment or measured impact is claimed.
 
----
+## 6. Scientific limits and next evidence
 
-## Slide 6: Real-World Impact & Roadmap
-- **Resource Dispatch:** Dramatically lowers false cluster alarms and redundant fire engine deployments.
-- **Cross-Agency Readiness:** Formatted for easy ingestion by civil protection agencies worldwide.
-- **Roadmap 2026+:**
-  - Incorporating Landsat-Next thermal infrared data.
-  - Integration with geostationary GOES-R and Meteosat high-frequency scans.
-  - Physics-informed AI for active perimeter spread forecasting.
+NRT and nominal VIIRS 375 m resolution describe upstream products. They do not establish this application's latency or output accuracy. Record a real-data run, investigate matching/FRP methodology with independent reference cases, and evaluate performance before stronger claims. Fire-spread forecasting and automated spread alerts are unimplemented future ideas.
 
----
+## 7. Sources and rights
 
-## Slide 7: Open Science & NASA Space Apps Artifacts
-- **Source Code:** [https://github.com/fazeli1977-dot/FireSync-MODIS-VIIRS](https://github.com/fazeli1977-dot/FireSync-MODIS-VIIRS)
-- **Primary Data Sources:** NASA FIRMS (MODIS C6.1 & VIIRS VNP14IMGTDL / VJ114IMGTDL).
-- **Standards:** Open-source, reproducible, fully automated CI/test workflow.
+NASA FIRMS: `https://firms.modaps.eosdis.nasa.gov/`
+
+Area API: `https://firms.modaps.eosdis.nasa.gov/api/area/`
+
+MODIS product context: `https://modaps.modaps.eosdis.nasa.gov/services/about/products/c61-nrt/index.html`
+
+VIIRS 375 m product context: `https://modaps.modaps.eosdis.nasa.gov/services/about/products/viirs-land-c2-nrt/vj114imgtdl_nrt.html`
+
+See README.md for details. The revised local code includes an MIT license, copyright (c) 2026 Alireza Sani, following the owner's explicit selection and attribution. This license does not cover NASA data or third-party dependencies.

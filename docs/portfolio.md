@@ -1,0 +1,7 @@
+# FireSync: MODIS–VIIRS Wildfire & Thermal Anomaly Analysis Prototype
+
+FireSync is a Python portfolio prototype for exploring active-fire and thermal-anomaly point detections. Its code includes a NASA FIRMS CSV downloader, a MODIS–Suomi-NPP VIIRS processing pipeline, and a Folium map generator. The matching routine uses WGS84 geodesic distance and acquisition-time thresholds to select pairs one-to-one, preserves unmatched observations, and combines matched FRP using experimental fixed weights. A separate Streamlit dashboard explores deterministic synthetic detections through maps, date and FRP filters, and summary charts; its data are not outputs of the matching pipeline.
+
+The revised local copy passed 19 automated tests and its synthetic dashboard was opened in Chrome. FIRMS provides near-real-time data, and the VIIRS active-fire product has a nominal 375 m resolution; these are upstream product properties, not measured application latency or fused-output accuracy. Successful live ingestion and scientific calibration remain unverified. Fire-spread forecasting and automated spread alerts are not implemented. The revised local code includes an MIT license, copyright (c) 2026 Alireza Sani, as authorized by the owner.
+
+Prepared on October 25, 2026. This description makes no claim of competition participation, prior submission, or acceptance. See [validation record](validation.md) for executed checks and their limits, and [README](../README.md) for NASA product references. Repository publication is separate from competition submission.

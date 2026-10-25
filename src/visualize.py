@@ -2,6 +2,7 @@
 from __future__ import annotations
 import folium
 import geopandas as gpd
+from html import escape
 from src.utils import DATA_PROCESSED, get_logger
 
 logger = get_logger(__name__)
@@ -22,11 +23,11 @@ def make_fire_map(
     Returns:
         Absolute path to the saved HTML file.
     """
-    center = [gdf.geometry.y.mean(), gdf.geometry.x.mean()]
-    m = folium.Map(location=center, zoom_start=6, tiles="CartoDB dark_matter")
+    center = [gdf.geometry.y.mean(), gdf.geometry.x.mean()] if not gdf.empty else [0.0, 0.0]
+    m = folium.Map(location=center, zoom_start=6, tiles="OpenStreetMap")
     folium.map.Marker(
         [center[0] + 0.01, center[1]],
-        icon=folium.DivIcon(html=f"<div style='font-size:14px;color:white'><b>{title}</b></div>"),
+        icon=folium.DivIcon(html=f"<div style='font-size:14px;color:white'><b>{escape(title)}</b></div>"),
     ).add_to(m)
 
     color_map = {"BOTH": "#ff6a00", "MODIS": "#4fc3f7", "VIIRS": "#aed581"}
@@ -46,6 +47,7 @@ def make_fire_map(
         ).add_to(m)
 
     out = DATA_PROCESSED / out_name
+    out.parent.mkdir(parents=True, exist_ok=True)
     m.save(str(out))
     logger.info("Map saved -> %s", out)
     return str(out)
